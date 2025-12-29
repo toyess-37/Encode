@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #F3F4F6;
+  margin: 0;
+  padding: 0;
+}
+
+input[type="file"] {
+  display: none;
+}
