@@ -68,7 +68,7 @@ export default function App() {
           ? ["Short shelf life", "Can be expensive"]
           : ["High added sugar", "Contains preservatives", "Low satiety"],
         keyinsight:
-          "⚠️ Simulation mode active. Add your Gemini API key in .env.local to get real AI analysis.",
+          "Simulation mode active. Add your Gemini API key in .env.local to get real AI analysis.",
       });
     }
 
