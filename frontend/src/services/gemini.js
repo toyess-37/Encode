@@ -2,11 +2,11 @@ const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 
 export async function analyzeWithGemini(base64Data, mimeType, textQuery) {
   if (!API_KEY) {
-    console.warn("⚠️ No API key found. Using simulation mode.");
+    console.warn("No API key found. Using simulation mode.");
     return null;
   }
 
-  console.log("✅ API key found! Making real API call...");
+  console.log("API key found! Making real API call...");
 
   try {
     let userPrompt = "Analyze the provided input (Image and/or Text).\n\n";
@@ -59,7 +59,7 @@ Structure:
     const data = await response.json();
 
     if (data.error) {
-      console.error("❌ API Error:", data.error);
+      console.error("API Error:", data.error);
       throw new Error(data.error.message);
     }
 
@@ -70,11 +70,11 @@ Structure:
     text = text.replace(/^json\s*/i, '');
     text = text.trim();
 
-    console.log("✅ Cleaned JSON:", text);
+    console.log("Cleaned JSON:", text);
 
     return JSON.parse(text);
   } catch (error) {
-    console.error("❌ Gemini API Error:", error);
+    console.error("Gemini API Error:", error);
     return null;
   }
 }
