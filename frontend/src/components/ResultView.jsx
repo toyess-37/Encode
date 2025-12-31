@@ -20,12 +20,20 @@ const THEMES = {
     accent: "bg-[#FEE2E2]",
     icon: "XCircle",
   },
+  gray: {
+    header: "bg-slate-500",      
+    text: "text-slate-800",      
+    bg: "bg-slate-50",           
+    icon: "Settings",
+    proBorder: "border-slate-200",
+    conBorder: "border-slate-200"
+  }
 };
 
 export function ResultView({ result, onBack }) {
   if (!result) return null;
 
-  const theme = THEMES[result.color] || THEMES.yellow;
+  const theme = THEMES[result.color] || THEMES.gray;
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">

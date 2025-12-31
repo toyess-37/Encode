@@ -4,7 +4,16 @@ import { Icon } from "./Icon";
 
 export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
   const fileInputRef = useRef(null);
+  const textareaRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto'; // Reset height to shrink if text is deleted
+      textarea.style.height = `${textarea.scrollHeight}px`; // Set to scrollHeight
+    }
+  }, [query]);
 
   useEffect(() => {
     if (file) {
@@ -47,10 +56,10 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
-      <div className="w-full max-w-md animate-fade-in z-10">
+      <div className="w-full max-w-xl animate-fade-in z-10">
         {/* Logo + title */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center"><img src="/src/assets/logo.png" alt="EatNeat Logo" className="w-20 h-20 object-contain"/></div>
+          {/*<div className="flex items-center justify-center"><img src="/src/assets/logo.png" alt="EatNeat Logo" className="w-20 h-20 object-contain"/></div>*/}
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-3">
             EatNeat
           </h1>
@@ -60,7 +69,7 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
         </div>
 
         {/* Search container */}
-        <div className="bg-white p-3 rounded-xl border border-gray-200 transition-transform duration-1000">
+        <div className="bg-white p-4 rounded-[2em] border border-gray-200 transition-transform duration-1000">
           {/* Image preview */}
           {file && (
             <div className="mx-2 mt-2 mb-3 px-4 py-3 bg-gray-50 rounded-2xl flex items-center justify-between border border-gray-100 animate-fade-in">
@@ -95,8 +104,8 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
           )}
 
           {/* Input */}
-          <div className="flex items-center gap-2 pl-0 pr-0 pb-1">
-            <input
+          <div className="flex flex-col items-center gap-2 pl-0 pr-0 pb-1">
+            {/* <input
               type="text"
               className="flex-1 py-2 text-base md:text-lg outline-none text-gray-900 placeholder:text-gray-300 font-medium bg-transparent min-w-0"
               placeholder={
@@ -109,9 +118,25 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
               onKeyDown={(e) => {
                 if (e.key === "Enter") onAnalyze();
               }}
+            /> */}
+            <textarea
+              ref={textareaRef}
+              rows={1}
+              maxLength={100}
+              className="w-full py-4 text-base md:text-lg outline-none text-gray-900 placeholder:text-gray-300 font-medium bg-transparent min-w-0 resize-none overflow-hidden"
+              placeholder={file ? "Add context e.g. Is this vegan?" : "Type a food or scan"}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault(); // Prevent new line
+                  onAnalyze();
+                }
+              }}
+              style={{ maxHeight: '200px', overflowY: query.length > 100 ? 'auto' : 'hidden' }} 
             />
             {/* Controls */}
-            <div className="flex gap-3">
+            <div className="w-full flex gap-3 justify-end pt-2 border-t border-transparent">
               <input
                 type="file"
                 accept="image/*"
@@ -133,16 +158,17 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
 
               <button 
                onClick={startListening} 
-               className="p-4 rounded-3xl bg-gray-50 text-gray-500 hover:bg-gray-100 transition-all duration-200"
+               className="p-4 rounded-3xl bg-gray-50 text-gray-500 hover:bg-gray-200 transition-all duration-200"
                title="Voice Search">
                 <Icon name="Mic" size={18} strokeWidth={2} />
               </button>
 
               <button
                 onClick={onAnalyze}
-                className="p-4 bg-black hover:bg-blue-700 text-white rounded-[2em] transition-all duration-400 active:scale-95"
+                className="p-4 bg-black hover:bg-gray-700 text-white rounded-[2em] transition-all duration-200 active:scale-95"
+                title="Send query"
               >
-                <Icon name="ArrowRight" size={18} strokeWidth={3} />
+                <Icon name="SendHorizontal" size={18} strokeWidth={3} />
               </button>
             </div>
           </div>
