@@ -38,7 +38,7 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
       const recognition = new SpeechRecognition();
       recognition.lang = 'en-IN';
       recognition.continuous = false;
-      
+
       recognition.onstart = () => {
         console.log("Listening...");
       };
@@ -54,9 +54,71 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
     }
   };
 
+  const placeholders = [
+    "Is this apple organic?",
+    "Scan this chocolate bar...",
+    "Ye kaun sa fruit hai?",
+    "Is this safe for toddlers?"
+  ];
+  const [placeholder, setPlaceholder] = useState("");
+  const [phIndex, setPhIndex] = useState(0);
+  const [charIndex, setCharIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isPausing, setIsPausing] = useState(false);
+
+  useEffect(() => {
+    const currentText = placeholders[phIndex];
+
+    // 1. SPEED SETTINGS (Larger number = Slower)
+    const typeSpeed = 150;
+    const deleteSpeed = 100;
+    const pauseDuration = 2000; // Wait 2 seconds before deleting
+
+    if (isPausing) {
+      const pauseTimer = setTimeout(() => {
+        setIsPausing(false);
+        setIsDeleting(true);
+      }, pauseDuration);
+      return () => clearTimeout(pauseTimer);
+    }
+
+    const timer = setTimeout(() => {
+      if (!isDeleting && charIndex < currentText.length) {
+        // TYPING
+        setPlaceholder(currentText.substring(0, charIndex + 1));
+        setCharIndex(prev => prev + 1);
+      } else if (isDeleting && charIndex > 0) {
+        // DELETING
+        setPlaceholder(currentText.substring(0, charIndex - 1));
+        setCharIndex(prev => prev - 1);
+      } else {
+        // SWITCHING STATE
+        if (!isDeleting) {
+          // Finished typing -> Start Pause
+          setIsPausing(true);
+        } else {
+          // Finished deleting -> Next Sentence
+          setIsDeleting(false);
+          setPhIndex((prev) => (prev + 1) % placeholders.length);
+        }
+      }
+    }, isDeleting ? deleteSpeed : typeSpeed);
+
+    return () => clearTimeout(timer);
+  }, [charIndex, isDeleting, isPausing, phIndex]);
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
-      <div className="w-full max-w-xl animate-fade-in z-10">
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-[-50%] w-[200%] h-[200%] bg-food-pattern rotate-12"></div>
+      </div>
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        {/* Radial Fade (Makes the grid disappear at edges) */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_200px,#ffffff00,white)]"></div>
+      </div>
+      
+      <div className="w-full max-w-xl animate-fade-in relative z-10">
         {/* Logo + title */}
         <div className="text-center mb-12">
           {/*<div className="flex items-center justify-center"><img src="/src/assets/logo.png" alt="EatNeat Logo" className="w-20 h-20 object-contain"/></div>*/}
@@ -69,21 +131,21 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
         </div>
 
         {/* Search container */}
-        <div className="bg-white p-4 rounded-[2em] border border-gray-200 transition-transform duration-1000">
+        <div className="bg-white/60 backdrop-blur-xl p-4 rounded-[2em] border border-gray-200 transition-transform duration-1000">
           {/* Image preview */}
           {file && (
             <div className="mx-2 mt-2 mb-3 px-4 py-3 bg-gray-50 rounded-2xl flex items-center justify-between border border-gray-100 animate-fade-in">
               <div className="flex items-center gap-3 overflow-hidden">
                 <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
                   <div className="flex items-center w-10 h-10 md:w-12 md:h-12 overflow-hidden shrink-0">
-                   {previewUrl && (
-                     <img 
-                       src={previewUrl} 
-                       alt="Preview" 
-                       className="w-full h-full object-cover" 
-                     />
-                   )}
-                </div>
+                    {previewUrl && (
+                      <img
+                        src={previewUrl}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
                 </div>
                 <div className="flex flex-col min-w-0">
                   <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
@@ -105,26 +167,12 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
 
           {/* Input */}
           <div className="flex flex-col items-center gap-2 pl-0 pr-0 pb-1">
-            {/* <input
-              type="text"
-              className="flex-1 py-2 text-base md:text-lg outline-none text-gray-900 placeholder:text-gray-300 font-medium bg-transparent min-w-0"
-              placeholder={
-                file
-                  ? "Add context e.g. Is this vegan?"
-                  : "Type a food or scan"
-              }
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") onAnalyze();
-              }}
-            /> */}
             <textarea
               ref={textareaRef}
               rows={1}
               maxLength={100}
               className="w-full py-4 text-base md:text-lg outline-none text-gray-900 placeholder:text-gray-300 font-medium bg-transparent min-w-0 resize-none overflow-hidden"
-              placeholder={file ? "Add context e.g. Is this vegan?" : "Type a food or scan"}
+              placeholder={file ? "Add context e.g. Is this vegan?" : placeholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
@@ -133,7 +181,7 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
                   onAnalyze();
                 }
               }}
-              style={{ maxHeight: '200px', overflowY: query.length > 100 ? 'auto' : 'hidden' }} 
+              style={{ maxHeight: '200px', overflowY: query.length > 100 ? 'auto' : 'hidden' }}
             />
             {/* Controls */}
             <div className="w-full flex gap-3 justify-end pt-2 border-t border-transparent">
@@ -146,20 +194,19 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className={`p-4 rounded-3xl transition-all duration-200 ${
-                  file
-                    ? "bg-black text-white"
-                    : "bg-gray-50 text-gray-500 hover:bg-gray-200"
-                }`}
+                className={`p-4 rounded-3xl transition-all duration-200 ${file
+                  ? "bg-black text-white"
+                  : "bg-gray-50 text-gray-500 hover:bg-gray-200"
+                  }`}
                 title="Upload Image"
               >
-              <Icon name="Camera" size={18} strokeWidth={2} />
+                <Icon name="Camera" size={18} strokeWidth={2} />
               </button>
 
-              <button 
-               onClick={startListening} 
-               className="p-4 rounded-3xl bg-gray-50 text-gray-500 hover:bg-gray-200 transition-all duration-200"
-               title="Voice Search">
+              <button
+                onClick={startListening}
+                className="p-4 rounded-3xl bg-gray-50 text-gray-500 hover:bg-gray-200 transition-all duration-200"
+                title="Voice Search">
                 <Icon name="Mic" size={18} strokeWidth={2} />
               </button>
 
@@ -168,27 +215,26 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
                 className="p-4 bg-black hover:bg-gray-700 text-white rounded-[2em] transition-all duration-200 active:scale-95"
                 title="Send query"
               >
-                <Icon name="SendHorizontal" size={18} strokeWidth={3} />
+                <Icon name="ArrowRight" size={18} strokeWidth={3} />
               </button>
             </div>
           </div>
         </div>
 
         {/* Footer badges */}
-        <div className="mt-12 flex justify-center gap-8 text-xs font-bold tracking-widest text-gray-300 uppercase">
+        <div className="mt-8 flex flex-col justify-center gap-2 text-md font-bold text-gray-300">
           <span
-            className="flex items-center gap-2 hover:text-gray-400 transition-colors cursor-help"
-            title="We do not store images or text"
+            className="flex items-center gap-2 hover:text-gray-400 transition-colors"
           >
             <Icon name="Shield" size={14} />
-            Zero Data Stored
+            We do not store images or text.
           </span>
           <span
             className="flex items-center gap-2 hover:text-gray-400 transition-colors cursor-help"
             title="AI infers intent from the product itself"
           >
             <Icon name="BrainCircuit" size={14} strokeWidth={2} />
-            Context Aware
+            Context Aware.
           </span>
         </div>
       </div>
