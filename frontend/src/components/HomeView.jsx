@@ -23,8 +23,30 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
     }
   };
 
+  const startListening = () => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'en-IN';
+      recognition.continuous = false;
+      
+      recognition.onstart = () => {
+        console.log("Listening...");
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setQuery(transcript); // puts the text into search box
+      };
+
+      recognition.start();
+    } else {
+      alert("Voice search is not supported in this browser.");
+    }
+  };
+
   return (
-    <div className="min-h-[100dvh] flex flex-col items-center justify-center p-6 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
       <div className="w-full max-w-md animate-fade-in z-10">
         {/* Logo + title */}
         <div className="text-center mb-12">
@@ -44,7 +66,6 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
             <div className="mx-2 mt-2 mb-3 px-4 py-3 bg-gray-50 rounded-2xl flex items-center justify-between border border-gray-100 animate-fade-in">
               <div className="flex items-center gap-3 overflow-hidden">
                 <div className="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
-                  {/*<Icon name="Image" size={20} />*/}
                   <div className="flex items-center w-10 h-10 md:w-12 md:h-12 overflow-hidden shrink-0">
                    {previewUrl && (
                      <img 
@@ -74,7 +95,7 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
           )}
 
           {/* Input */}
-          <div className="flex items-center gap-2 pl-3 pr-2 pb-1">
+          <div className="flex items-center gap-2 pl-0 pr-0 pb-1">
             <input
               type="text"
               className="flex-1 py-2 text-base md:text-lg outline-none text-gray-900 placeholder:text-gray-300 font-medium bg-transparent min-w-0"
@@ -90,7 +111,7 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
               }}
             />
             {/* Controls */}
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <input
                 type="file"
                 accept="image/*"
@@ -107,13 +128,21 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
                 }`}
                 title="Upload Image"
               >
-                <Icon name="Camera" size={18} />
+              <Icon name="Camera" size={18} strokeWidth={2} />
               </button>
+
+              <button 
+               onClick={startListening} 
+               className="p-4 rounded-3xl bg-gray-50 text-gray-500 hover:bg-gray-100 transition-all duration-200"
+               title="Voice Search">
+                <Icon name="Mic" size={18} strokeWidth={2} />
+              </button>
+
               <button
                 onClick={onAnalyze}
-                className="p-3.5 bg-black hover:bg-blue-700 text-white rounded-[2em] transition-all duration-400 active:scale-95"
+                className="p-4 bg-black hover:bg-blue-700 text-white rounded-[2em] transition-all duration-400 active:scale-95"
               >
-                <Icon name="ArrowRight" size={18} />
+                <Icon name="ArrowRight" size={18} strokeWidth={3} />
               </button>
             </div>
           </div>
@@ -132,7 +161,7 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
             className="flex items-center gap-2 hover:text-gray-400 transition-colors cursor-help"
             title="AI infers intent from the product itself"
           >
-            <Icon name="BrainCircuit" size={14} />
+            <Icon name="BrainCircuit" size={14} strokeWidth={2} />
             Context Aware
           </span>
         </div>
