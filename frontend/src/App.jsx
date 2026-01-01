@@ -21,18 +21,25 @@ export default function App() {
     let base64Data = null;
     let mimeType = null;
 
-    // Convert file to base64 if present
+    // Resize and Convert
     if (file) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
+      try {
+        const resizedDataUrl = await resizeImage(file);
+        base64Data = resizedDataUrl.split(",")[1];
+        mimeType = "image/jpeg";
+      } catch(err) {
+        console.error("Image processing failed", err);
+      }
+      // const reader = new FileReader();
+      // reader.readAsDataURL(file);
       
-      await new Promise((resolve) => {
-        reader.onloadend = () => {
-          base64Data = reader.result.split(",")[1];
-          mimeType = file.type;
-          resolve();
-        };
-      });
+      // await new Promise((resolve) => {
+      //   reader.onloadend = () => {
+      //     base64Data = reader.result.split(",")[1];
+      //     mimeType = file.type;
+      //     resolve();
+      //   };
+      // });
     }
 
     // Try Gemini API
@@ -41,34 +48,16 @@ export default function App() {
     if (apiResult) {
       setResult(apiResult);
     } else {
-      // Fallback simulation
-      const safeInput = (query || "").toLowerCase();
-      const isHealthy =
-        safeInput.includes("yogurt") ||
-        safeInput.includes("salad") ||
-        safeInput.includes("apple") ||
-        safeInput.includes("vegan");
-
+      // --- FALLBACK: SYSTEM CHECK / API MISSING ---
       setResult({
-        productname: file
-          ? "Scanned Item"
-          : query.length > 20
-          ? "Complex Query"
-          : query || "Demo Product",
-        inferredintent: "General health",
-        verdict: isHealthy ? "Healthy" : "Moderate",
-        color: isHealthy ? "green" : "yellow",
-        summary: isHealthy
-          ? "This is a nutrient-dense choice that supports sustained energy levels."
-          : "Processed ingredients detected. It's fine occasionally, but watch the sugar content.",
-        positives: isHealthy
-          ? ["High in vitamins", "Low glycemic index", "Natural ingredients"]
-          : ["Quick energy source", "Convenient packaging"],
-        negatives: isHealthy
-          ? ["Short shelf life", "Can be expensive"]
-          : ["High added sugar", "Contains preservatives", "Low satiety"],
-        keyinsight:
-          "Simulation mode active. Add your Gemini API key in .env.local to get real AI analysis.",
+        product_name: "API Setup Required",
+        inferred_intent: "System Diagnosis",
+        verdict: "Configuration Missing",
+        color: "gray",
+        summary: "Server side error: The app could not connect to the AI.",
+        positives: [],
+        negatives: [],
+        key_insight: "Technical Note: Ensure your .env file contains a valid VITE_GEMINI_API_KEY and restart the server."
       });
     }
 
@@ -102,3 +91,29 @@ export default function App() {
     />
   );
 }
+
+const resizeImage = (file, maxWidth = 800) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        // If image is smaller than maxWidth, don't upscale it
+        const finalWidth = Math.min(img.width, maxWidth);
+        const finalHeight = img.height * (finalWidth / img.width);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = finalWidth;
+        canvas.height = finalHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, finalWidth, finalHeight);
+
+        // Compress to JPEG at 0.7 quality
+        resolve(canvas.toDataURL("image/jpeg", 0.7));
+      };
+    };
+  });
+};

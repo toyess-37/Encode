@@ -4,11 +4,22 @@
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #F3F4F6;
+  background-color: #FAF4FE;
   margin: 0;
   padding: 0;
 }
 
 input[type="file"] {
   display: none;
+}
+
+@keyframes slide-diagonal {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-100px, -100px); }
+}
+.bg-food-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='30' font-size='20'%3E🍎%3C/text%3E%3Ctext x='60' y='30' font-size='20'%3E🍕%3C/text%3E%3Ctext x='10' y='80' font-size='20'%3E🥑%3C/text%3E%3Ctext x='60' y='80' font-size='20'%3E🍔%3C/text%3E%3C/svg%3E");
+  background-size: 100px 100px;
+  animation: slide-diagonal 30s linear infinite;
+  opacity: 0.1;
 }
