@@ -54,70 +54,40 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
     }
   };
 
-  const placeholders = [
+  const [placeholder, setPlaceholder] = useState("Type a food or scan to know more");
+  const [isFading, setIsFading] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const prompts = [
     "Is this apple organic?",
+    "Check these ingredients for gluten...",
+    "How much sugar is in this soda?",
+    "Is this meal keto-friendly?",
+    "Kya ye bacchon ke liye safe hai?",
     "Scan this chocolate bar...",
-    "Ye kaun sa fruit hai?",
-    "Is this safe for toddlers?"
+    "Ye kaun sa fruit hai?"
   ];
-  const [placeholder, setPlaceholder] = useState("");
-  const [phIndex, setPhIndex] = useState(0);
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isPausing, setIsPausing] = useState(false);
 
   useEffect(() => {
-    const currentText = placeholders[phIndex];
+    if (isFocused || query) return;
 
-    // 1. SPEED SETTINGS (Larger number = Slower)
-    const typeSpeed = 150;
-    const deleteSpeed = 100;
-    const pauseDuration = 2000; // Wait 2 seconds before deleting
-
-    if (isPausing) {
-      const pauseTimer = setTimeout(() => {
-        setIsPausing(false);
-        setIsDeleting(true);
-      }, pauseDuration);
-      return () => clearTimeout(pauseTimer);
-    }
-
-    const timer = setTimeout(() => {
-      if (!isDeleting && charIndex < currentText.length) {
-        // TYPING
-        setPlaceholder(currentText.substring(0, charIndex + 1));
-        setCharIndex(prev => prev + 1);
-      } else if (isDeleting && charIndex > 0) {
-        // DELETING
-        setPlaceholder(currentText.substring(0, charIndex - 1));
-        setCharIndex(prev => prev - 1);
-      } else {
-        // SWITCHING STATE
-        if (!isDeleting) {
-          // Finished typing -> Start Pause
-          setIsPausing(true);
-        } else {
-          // Finished deleting -> Next Sentence
-          setIsDeleting(false);
-          setPhIndex((prev) => (prev + 1) % placeholders.length);
-        }
-      }
-    }, isDeleting ? deleteSpeed : typeSpeed);
-
-    return () => clearTimeout(timer);
-  }, [charIndex, isDeleting, isPausing, phIndex]);
+    const interval = setInterval(() => {
+      setIsFading(true);
+      setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * prompts.length);
+        setPlaceholder(prompts[randomIndex]);
+        setIsFading(false);
+      }, 500);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isFocused, query]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute inset-[-50%] w-[200%] h-[200%] bg-food-pattern rotate-12"></div>
       </div>
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
-        {/* Radial Fade (Makes the grid disappear at edges) */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_800px_at_50%_200px,#ffffff00,white)]"></div>
-      </div>
-      
+
       <div className="w-full max-w-xl animate-fade-in relative z-10">
         {/* Logo + title */}
         <div className="text-center mb-12">
@@ -131,7 +101,7 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
         </div>
 
         {/* Search container */}
-        <div className="bg-white/60 backdrop-blur-xl p-4 rounded-[2em] border border-gray-200 transition-transform duration-1000">
+        <div className="bg-white p-3 rounded-[2em] border border-gray-300">
           {/* Image preview */}
           {file && (
             <div className="mx-2 mt-2 mb-3 px-4 py-3 bg-gray-50 rounded-2xl flex items-center justify-between border border-gray-100 animate-fade-in">
@@ -171,7 +141,9 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
               ref={textareaRef}
               rows={1}
               maxLength={100}
-              className="w-full py-4 text-base md:text-lg outline-none text-gray-900 placeholder:text-gray-300 font-medium bg-transparent min-w-0 resize-none overflow-hidden"
+              onFocus={() => { setIsFocused(true); }}
+              onBlur={() => { setIsFocused(false); }}
+              className={`w-full py-4 text-base md:text-lg outline-none text-gray-900 placeholder:text-gray-300 font-medium bg-transparent min-w-0 resize-none overflow-hidden transition-opacity ${isFading && !isFocused ? 'opacity-0' : 'opacity-100'}`}
               placeholder={file ? "Add context e.g. Is this vegan?" : placeholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
