@@ -91,8 +91,8 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
       <div className="w-full max-w-xl animate-fade-in relative z-10">
         {/* Logo + title */}
         <div className="text-center mb-12">
-          {/*<div className="flex items-center justify-center"><img src="/src/assets/logo.png" alt="EatNeat Logo" className="w-20 h-20 object-contain"/></div>*/}
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-3">
+          <div className="flex items-center justify-center"><img src="/src/assets/logo_eatneat.svg" alt="EatNeat Logo" className="w-20 h-20 object-contain"/></div>
+          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
             EatNeat
           </h1>
           <p className="text-gray-500 text-lg font-medium">
