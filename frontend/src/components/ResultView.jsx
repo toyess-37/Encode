@@ -21,9 +21,9 @@ const THEMES = {
     icon: "XCircle",
   },
   gray: {
-    header: "bg-slate-500",      
-    text: "text-slate-800",      
-    bg: "bg-slate-50",           
+    header: "bg-slate-500",
+    text: "text-slate-800",
+    bg: "bg-slate-50",
     icon: "Settings",
     proBorder: "border-slate-200",
     conBorder: "border-slate-200"
@@ -43,7 +43,7 @@ export function ResultView({ result, onBack }) {
       >
         <button
           onClick={onBack}
-          className="absolute top-6 left-6 p-2 bg-black/10 hover:bg-black/20 text-white rounded-full backdrop-blur-md transition-colors"
+          className="absolute top-6 right-6 p-2 bg-black/10 hover:bg-black/20 text-white rounded-full backdrop-blur-md transition-colors"
         >
           <Icon name="ArrowLeft" size={24} />
         </button>
@@ -153,6 +153,14 @@ export function ResultView({ result, onBack }) {
               </div>
             </div>
           </div>
+
+          <button
+            onClick={onBack}
+            className="w-full mt-6 py-4 rounded-2xl bg-white border border-slate-200 text-slate-600 font-bold shadow-sm hover:bg-slate-50 hover:text-slate-900 transition-all active:scale-95 flex items-center justify-center gap-2 group"
+          >
+            <Icon name="Search" size={20} className="text-slate-400 group-hover:text-slate-700 transition-colors" />
+            <span>Search Again</span>
+          </button>
         </div>
       </div>
     </div>
