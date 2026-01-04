@@ -59,13 +59,11 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
   const [isFocused, setIsFocused] = useState(false);
 
   const prompts = [
-    "Is this apple organic?",
     "Check these ingredients for gluten...",
-    "How much sugar is in this soda?",
     "Is this meal keto-friendly?",
-    "Kya ye bacchon ke liye safe hai?",
     "Scan this chocolate bar...",
-    "Ye kaun sa fruit hai?"
+    "Ye kaun sa fruit hai?",
+    "Good season to eat ice-cream"
   ];
 
   useEffect(() => {
@@ -84,20 +82,25 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 relative">
+      <div 
+        className="absolute top-6 left-6 z-50 flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+        onClick={() => window.location.reload()}
+      >
+        <div className="flex items-center justify-center"><img src="/src/assets/logo_eatneat.svg" alt="EatNeat Logo" className="w-9 h-9 object-contain"/></div>
+        <span className="text-xl font-bold tracking-tight text-slate-900">EatNeat</span>
+      </div>
+
       <div className="absolute inset-0 z-0 overflow-hidden">
         <div className="absolute inset-[-50%] w-[200%] h-[200%] bg-food-pattern rotate-12"></div>
       </div>
 
       <div className="w-full max-w-xl animate-fade-in relative z-10">
         {/* Logo + title */}
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center"><img src="/src/assets/logo_eatneat.svg" alt="EatNeat Logo" className="w-20 h-20 object-contain"/></div>
-          <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
-            EatNeat
-          </h1>
-          <p className="text-gray-500 text-lg font-medium">
-            Know your Food!
-          </p>
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-slate-900 mb-3 leading-tight">
+                What are we <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-blue-600">eating today?</span>
+            </h1>
+            <p class="text-slate-500 text-lg">Your AI-powered nutrition co-pilot.</p>
         </div>
 
         {/* Search container */}
@@ -196,13 +199,13 @@ export function HomeView({ query, setQuery, file, setFile, onAnalyze }) {
         {/* Footer badges */}
         <div className="mt-8 flex flex-col justify-center gap-2 text-md font-bold text-gray-300">
           <span
-            className="flex items-center gap-2 hover:text-gray-400 transition-colors"
+            className="flex items-center gap-2 hover:text-gray-400 transition-colors duration-500"
           >
             <Icon name="Shield" size={14} />
-            We do not store images or text.
+            We do not store any images or query.
           </span>
           <span
-            className="flex items-center gap-2 hover:text-gray-400 transition-colors cursor-help"
+            className="flex items-center gap-2 hover:text-gray-400 transition-colors duration-500 cursor-help"
             title="AI infers intent from the product itself"
           >
             <Icon name="BrainCircuit" size={14} strokeWidth={2} />
